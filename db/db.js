@@ -15,7 +15,16 @@ exports.insertUser = function(firstName, lastName, signature) {
 };
 
 exports.getSigners = function() {
-    db.query("SELECT * FROM signatures;").then(results => {
-        console.log(results.rows);
+    return db.query("SELECT * FROM signatures;").then(results => {
+        return results.rows;
+    });
+};
+
+exports.signatureId = function(sigId) {
+    const q = `SELECT signature FROM signatures WHERE id = ${sigId}`;
+    // const params = [sigId];
+
+    return db.query(q).then(results => {
+        return results.rows[0].signature;
     });
 };

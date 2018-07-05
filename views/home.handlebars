@@ -3,12 +3,12 @@
 <form method="post">
     <input type="text" name="firstname" placeholder="firstname">
     <input type="text" name="lastname" placeholder="lastname">
+    <input id="hidden-input" name="signature" type="hidden">
+    <input name="_csrf" type="hidden" value="{{ csrfToken }}">
     <button id="submit" type="submit">Submit</button>
 </form>
 
 <canvas id="canvas" width="500" height="100" style="border: 1px red solid"></canvas>
-
-<!-- <input id="hidden-input" type="hidden" value="data:image/png"> -->
 
 <button id="clear" type="button" name="button">Clear</button>
 

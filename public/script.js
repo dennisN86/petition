@@ -2,6 +2,7 @@ const canvas = $("#canvas");
 const ctx = canvas[0].getContext("2d");
 const submit = $("#submit");
 const clear = $("#clear");
+const hiddenInput = $("#hidden-input");
 
 canvas.mousedown(function(e) {
     var mouseX = e.pageX - $(this).offset().left;
@@ -23,12 +24,13 @@ canvas.mousemove(function(e) {
     }
 });
 
-canvas.mouseup(function(e) {
+canvas.mouseup(function() {
+    // hiddenInput.val(canvas[0].toDataURL());
     paint = false;
     redraw();
 });
 
-canvas.mouseleave(function(e) {
+canvas.mouseleave(function() {
     paint = false;
 });
 
@@ -44,12 +46,9 @@ function addClick(x, y, dragging) {
 }
 
 function redraw() {
-    // 0, 0 will adept to the canvas size and clears it
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    ctx.strokeStyle = "#df4b26";
+    ctx.strokeStyle = "red";
     ctx.lineJoin = "round";
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 3;
 
     for (var i = 0; i < clickX.length; i++) {
         ctx.beginPath();
@@ -63,4 +62,14 @@ function redraw() {
         ctx.stroke();
     }
 }
-// canvas.toDataURL(); // listener needed for mousedown(begin path), mousemove(stroke), mouseup(canvas toDataURL)
+
+clear.click(function() {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    clickX = [];
+    clickY = [];
+    canvas.value = "";
+});
+
+submit.click(function() {
+    hiddenInput.val(canvas[0].toDataURL());
+});
