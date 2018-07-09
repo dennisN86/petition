@@ -1,0 +1,11 @@
+<form method="post">
+    <input type="text" name="firstname" placeholder="firstname">
+    <input type="text" name="lastname" placeholder="lastname">
+    <input type="text" name="emailaddress" placeholder="emailaddress">
+    <input type="password" name="password" placeholder="password">
+    <input name="_csrf" type="hidden" value="{{ csrfToken }}">
+    <button id="register" type="submit">Register</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="/script.js" charset="utf-8"></script>

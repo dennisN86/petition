@@ -1,16 +1,9 @@
 <h1>My petition!</h1>
 
-<form method="post">
-    <input type="text" name="firstname" placeholder="firstname">
-    <input type="text" name="lastname" placeholder="lastname">
-    <input id="hidden-input" name="signature" type="hidden">
-    <input name="_csrf" type="hidden" value="{{ csrfToken }}">
-    <button id="submit" type="submit">Submit</button>
-</form>
+<a href="/registration">
+    <button id="register">Register</button>
+</a>
 
-<canvas id="canvas" width="500" height="100" style="border: 1px red solid"></canvas>
-
-<button id="clear" type="button" name="button">Clear</button>
-
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script src="/script.js" charset="utf-8"></script>
+<a href="/login">
+    <button id="login">Log In</button>
+</a>
