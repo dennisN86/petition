@@ -50,7 +50,6 @@ app.get("/", (req, res) => {
 //////////////////////////////////////////
 
 app.get("/registration", (req, res) => {
-    db.registration();
     res.render("registration");
 });
 
@@ -71,7 +70,7 @@ app.post("/registration", (req, res) => {
                 resolve
             ).then(newUser => {
                 req.session.user = newUser;
-                res.redirect("/additionalInformation");
+                res.redirect("/profile");
                 console.log(newUser);
             });
         });
@@ -87,37 +86,60 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    db.getEmails(req.body.emailaddress).then(results => {
-        if (results && results.email) {
-            console.log("Emailaddress: ", results.email, "found");
-            db.getPassword(req.body.emailaddress).then(savedHashedPassword => {
-                bc.checkPassword(req.body.password, savedHashedPassword)
-                    .then(() => {
-                        db.getUser(req.body.emailaddress).then(matchedUser => {
-                            req.session.user = matchedUser;
-                            res.redirect("/petition");
-                        });
-                    })
-                    .catch(err => {
-                        console.log("Error while signing in", err);
-                        res.render("registration");
-                    });
+    db.getEmails(req.body.emailaddress)
+        .then(results => {
+            if (results && results.email) {
+                db.getPassword(req.body.emailaddress).then(
+                    savedHashedPassword => {
+                        bc.checkPassword(req.body.password, savedHashedPassword)
+                            .then(doesMatch => {
+                                if (doesMatch) {
+                                    db.getUser(req.body.emailaddress).then(
+                                        matchedUser => {
+                                            req.session.user = matchedUser;
+                                            res.redirect("/petition");
+                                        }
+                                    );
+                                } else {
+                                    res.render("login", {
+                                        err:
+                                            "Some error occured! Please fill in the form again."
+                                    });
+                                }
+                            })
+                            .catch(err => {
+                                res.render("login", {
+                                    err:
+                                        "Some error occured! Please fill in the form again."
+                                });
+                            });
+                    }
+                );
+            }
+        })
+        .catch(err => {
+            res.render("login", {
+                err: "Some error occured! Please fill in the form again."
             });
-        }
-    });
+        });
 });
 
 //////////////////////////////////////////////
-////////////// additional information ////////
+/////////////////// profil ///////////////////
 //////////////////////////////////////////////
 
-app.get("/additionalInformation", (req, res) => {
-    db.userProfiles();
-    res.render("additionalInformation");
+app.get("/profile", (req, res) => {
+    res.render("profile");
 });
 
-app.post("/additionalInformation", (req, res) => {
-    db.userProfiles(req.body.age, req.body.city, req.body.url).then(user => {
+app.post("/profile", (req, res) => {
+    db.userProfiles(
+        req.session.user.id,
+        req.body.age,
+        req.body.city,
+        req.body.url
+    ).then(results => {
+        console.log(results);
         res.redirect("/petition");
     });
 });
@@ -127,7 +149,6 @@ app.post("/additionalInformation", (req, res) => {
 ////////////////////////////////////////////
 
 app.get("/petition", (req, res) => {
-    db.userProfiles();
     res.render("petition");
 });
 
@@ -144,11 +165,8 @@ app.get("/thanks", checkForSig, (req, res) => {
 });
 
 app.post("/petition", (req, res) => {
-    console.log(req.body.signature);
-    db.insertUser(req.body.signature)
+    db.insertUser(req.session.user.id, req.body.signature)
         .then(queryResults => {
-            console.log(queryResults);
-            // req.session.signatureId;
             res.render("thanks", {
                 id: queryResults
             });
@@ -177,3 +195,11 @@ app.get("/signers/:cityname", (req, res) => {
 app.listen(8080, () => {
     console.log("Listening on port 8080");
 });
+
+// populate edit profile page with user credentials, except password and homepage field
+// write to querries to update the user and the user_profiles table
+// the column your checking the ON CONFLICT (name) has to be the UNIQUE thingy
+//
+// when password is an empty sting -> skipping password update = no new hash
+// redirect user to updated information
+// add delete button to signature -> set the signature in the session to null
