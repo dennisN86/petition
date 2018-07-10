@@ -134,10 +134,10 @@ app.get("/profile", (req, res) => {
 
 app.post("/profile", (req, res) => {
     db.userProfiles(
-        req.session.user.id,
         req.body.age,
         req.body.city,
-        req.body.url
+        req.body.url,
+        req.session.user.id
     ).then(results => {
         console.log(results);
         res.redirect("/petition");
@@ -148,28 +148,32 @@ app.post("/profile", (req, res) => {
 /////////////// petition ///////////////////
 ////////////////////////////////////////////
 
-app.get("/petition", (req, res) => {
+app.get("/petition", checkForSig, (req, res) => {
     res.render("petition");
 });
 
 function checkForSig(req, res, next) {
-    !req.session.signatureId ? res.redirect("/petition") : next();
+    console.log("checking for signature");
+    req.session.signatureId ? res.redirect("/thanks") : next();
 }
 
 ////////////////////////////////////////////
 /////////////// thanks /////////////////////
 ////////////////////////////////////////////
 
-app.get("/thanks", checkForSig, (req, res) => {
-    res.render("thanks");
+app.get("/thanks", (req, res) => {
+    db.signatureId(req.session.signatureId).then(results => {
+        res.render("thanks", {
+            signature: results
+        });
+    });
 });
 
 app.post("/petition", (req, res) => {
     db.insertUser(req.session.user.id, req.body.signature)
-        .then(queryResults => {
-            res.render("thanks", {
-                id: queryResults
-            });
+        .then(signatureId => {
+            req.session.signatureId = signatureId;
+            res.redirect("/thanks");
         })
         .catch(err => {
             console.log(err);
@@ -181,7 +185,7 @@ app.post("/petition", (req, res) => {
 //////////////////////////////////////////////////
 
 app.get("/participants", (req, res) => {
-    db.getSigners().then(users => {
+    db.mergeTables().then(users => {
         res.render("participants", {
             listOfParticipants: users
         });
