@@ -60,7 +60,10 @@ app.post("/registration", (req, res) => {
         !req.body.emailaddress ||
         !req.body.password
     ) {
-        console.log("Error!");
+        res.render("registration", {
+            errorFlag: true,
+            err: "Some error occured! Please fill in the form again."
+        });
     } else {
         bc.hashPassword(req.body.password).then(resolve => {
             db.registerUser(
@@ -102,13 +105,15 @@ app.post("/login", (req, res) => {
                                     );
                                 } else {
                                     res.render("login", {
-                                        err:
-                                            "Some error occured! Please fill in the form again."
+                                        errorFlag: true,
+                                        err: "Password incorrect!"
                                     });
                                 }
                             })
                             .catch(err => {
+                                console.log(err);
                                 res.render("login", {
+                                    errorFlag: true,
                                     err:
                                         "Some error occured! Please fill in the form again."
                                 });
@@ -118,7 +123,9 @@ app.post("/login", (req, res) => {
             }
         })
         .catch(err => {
+            console.log(err);
             res.render("login", {
+                errorFlag: true,
                 err: "Some error occured! Please fill in the form again."
             });
         });
@@ -192,8 +199,117 @@ app.get("/participants", (req, res) => {
     });
 });
 
-app.get("/signers/:cityname", (req, res) => {
-    db.getSignersByCity(req.params.cityname);
+app.get("/participants/:city", (req, res) => {
+    db.listCity(req.params.city.toUpperCase()).then(results => {
+        res.render("city", {
+            listOfParticipants: results,
+            city: req.params.city.toUpperCase()
+        });
+    });
+});
+
+//////////////////////////////////////////////////
+/////////////// edit profile /////////////////////
+//////////////////////////////////////////////////
+
+app.get("/editProfile", (req, res) => {
+    console.log(req.session.user.id);
+    db.getUserInfo(req.session.user.id).then(results => {
+        console.log(results);
+        req.session.firstname = results.first_name;
+        req.session.lastname = results.last_name;
+        req.session.email = results.email;
+        req.session.hashedPassword = results.hashed_password;
+        req.session.age = results.age;
+        req.session.city = results.city;
+        req.session.url = results.url;
+        res.render("editProfile", {
+            userData: results
+        });
+    });
+});
+
+app.post("/editProfile", (req, res) => {
+    if (
+        req.body.firstname == "" &&
+        req.body.lastname == "" &&
+        req.body.email == "" &&
+        req.body.password == "" &&
+        req.body.age == "" &&
+        req.body.city == "" &&
+        req.body.url == ""
+    ) {
+        res.redirect("/petition");
+    } else {
+        if (!req.body.firstname == "") {
+            req.session.firstname = req.body.firstname;
+        }
+        if (!req.body.lastname == "") {
+            req.session.lastname = req.body.lastname;
+        }
+        if (!req.body.email == "") {
+            req.session.email = req.body.email;
+        }
+        if (!req.body.age == "") {
+            req.session.age = req.body.age;
+        }
+        if (!req.body.city == "") {
+            req.session.city = req.body.city;
+        }
+        if (!req.body.url == "") {
+            req.session.url = req.body.url;
+        }
+        if (!req.body.password == "") {
+            bc.hashPassword(req.body.password)
+                .then(result => {
+                    req.session.hashedPassword = result;
+                })
+                .then(() => {
+                    db.updateUsers(
+                        req.session.userId,
+                        req.session.firstname,
+                        req.session.lastname,
+                        req.session.email,
+                        req.session.hashedPassword
+                    ).then(() => {
+                        db.updateUserProfile(
+                            req.session.userId,
+                            req.session.age,
+                            req.session.city,
+                            req.session.url
+                        ).then(() => {
+                            res.redirect("/editProfile");
+                        });
+                    });
+                });
+        } else {
+            db.updateUsers(
+                req.session.userId,
+                req.session.firstname,
+                req.session.lastname,
+                req.session.email,
+                req.session.hashedPassword
+            ).then(() => {
+                db.updateUserProfile(
+                    req.session.userId,
+                    req.session.age,
+                    req.session.city,
+                    req.session.url
+                ).then(() => {
+                    res.redirect("/editProfile");
+                });
+            });
+        }
+    }
+});
+
+//////////////////////////////////////////////////
+///////////////// logout /////////////////////////
+//////////////////////////////////////////////////
+
+app.get("/logout", (req, res) => {
+    req.session = null;
+    res.redirect("/");
 });
 
 app.listen(8080, () => {

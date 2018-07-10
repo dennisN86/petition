@@ -6,7 +6,13 @@
         <link rel="stylesheet" href="/stylesheet.css">
     </head>
     <body>
-        
+
+        {{> nav }}
+
+        {{#if errorFlag}}
+            {{> error }}
+        {{/if}}
+
         {{{ body }}}
 
     </body>
