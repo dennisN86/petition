@@ -1,6 +1,13 @@
 const spicedPg = require("spiced-pg");
+let db;
 
-const db = spicedPg("postgres:dennis:password@localhost:5432/petition");
+if (process.env.DATABASE_URL) {
+    db = spicedPg(process.env.DATABASE_URL);
+} else {
+    db = spicedPg("postgres:dennis:password@localhost:5432/petition");
+}
+
+// const db = spicedPg("postgres:dennis:password@localhost:5432/petition");
 
 exports.registerUser = function(firstName, lastName, emailAddress, password) {
     const queryRegistration = `INSERT INTO users (first_name, last_name, email, hashed_password)
