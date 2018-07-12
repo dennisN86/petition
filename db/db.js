@@ -129,18 +129,12 @@ exports.getUserInfo = function(userId) {
     });
 };
 
-exports.updateUsers = function(
-    userId,
-    firstName,
-    lastName,
-    email,
-    hashedPassword
-) {
-    const query = `INSERT INTO users (id ,first_name, last_name, email, hashed_password)
-    VALUES ($1 , $2 , $3 , $4, $5)
-    UPDATE SET first_name = $2 , last_name = $3 , email = $4, hashed_password = $5;`;
+exports.updateUsers = function(userId, firstName, lastName, email) {
+    const query = `UPDATE users SET first_name = $2, last_name = $3, email = $4
+    WHERE id = $1
+    RETURNING *`;
 
-    const options = [userId, firstName, lastName, email, hashedPassword];
+    const options = [userId, firstName, lastName, email];
 
     return db
         .query(query, options)
@@ -156,7 +150,7 @@ exports.updateUserProfile = function(userId, age, city, url) {
     const query = `INSERT INTO user_profiles (user_id ,age, city, url)
     VALUES ($1 , $2 , $3 , $4)
     ON CONFLICT (user_id)
-    DO UPDATE SET age = $2 , city = $3 , url = $4;`;
+    DO UPDATE SET age = $2, city = $3, url = $4;`;
 
     const options = [userId, age, city, url];
 
@@ -164,6 +158,21 @@ exports.updateUserProfile = function(userId, age, city, url) {
         .query(query, options)
         .then(resultsTwo => {
             return resultsTwo.rows[0];
+        })
+        .catch(err => {
+            console.log(err);
+        });
+};
+
+exports.updatePassword = function(hashedPassword, userId) {
+    const query = `UPDATE users SET hashed_password = $1 WHERE id = $2;`;
+
+    const options = [hashedPassword, userId];
+
+    return db
+        .query(query, options)
+        .then(results => {
+            return results.rows[0];
         })
         .catch(err => {
             console.log(err);
