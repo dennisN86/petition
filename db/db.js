@@ -136,9 +136,9 @@ exports.updateUsers = function(
     email,
     hashedPassword
 ) {
-    const query = `UPDATE users SET first_name = $2, last_name = $3, email = $4, hashed_password = $5
-    WHERE id = $1
-    RETURNING *;`;
+    const query = `INSERT INTO users (id ,first_name, last_name, email, hashed_password)
+    VALUES ($1 , $2 , $3 , $4, $5)
+    UPDATE SET first_name = $2 , last_name = $3 , email = $4, hashed_password = $5;`;
 
     const options = [userId, firstName, lastName, email, hashedPassword];
 
@@ -162,10 +162,20 @@ exports.updateUserProfile = function(userId, age, city, url) {
 
     return db
         .query(query, options)
-        .then(results => {
-            return results.rows[0];
+        .then(resultsTwo => {
+            return resultsTwo.rows[0];
         })
         .catch(err => {
             console.log(err);
         });
+};
+
+exports.removeSignature = function(userId) {
+    const query = `DELETE FROM signatures WHERE user_id = $1`;
+
+    const options = [userId];
+
+    return db.query(query, options).then(results => {
+        return results.rows[0];
+    });
 };
