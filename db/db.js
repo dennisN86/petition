@@ -39,7 +39,7 @@ exports.insertUser = function(userId, signature) {
     const options = [userId, signature];
 
     return db.query(query, options).then(results => {
-        return results.rows[0].id;
+        return results.rows[0];
     });
 };
 
@@ -85,12 +85,12 @@ exports.getSigners = function() {
     });
 };
 
-exports.signatureId = function(sigId) {
-    const query = `SELECT signature FROM signatures WHERE id = $1`;
-    const options = [sigId];
+exports.signatureId = function(userId) {
+    const query = `SELECT signature FROM signatures WHERE user_id = $1`;
+    const options = [userId];
 
     return db.query(query, options).then(results => {
-        return results.rows[0].signature;
+        return results.rows[0];
     });
 };
 
@@ -116,10 +116,10 @@ exports.listCity = city => {
 };
 
 exports.getUserInfo = function(userId) {
-    const query = `SELECT users.first_name, users.last_name, users.email, users.hashed_password, user_profiles.age, user_profiles.city, user_profiles.url
+    const query = `SELECT users.first_name, users.last_name, users.email, user_profiles.age, user_profiles.city, user_profiles.url
     FROM users
-    JOIN user_profiles
-    ON users.id = user_profiles.user_id
+    LEFT JOIN user_profiles
+    ON user_profiles.user_id = users.id
     WHERE users.id = $1;`;
 
     const options = [userId];
@@ -184,7 +184,5 @@ exports.removeSignature = function(userId) {
 
     const options = [userId];
 
-    return db.query(query, options).then(results => {
-        return results.rows[0];
-    });
+    return db.query(query, options);
 };

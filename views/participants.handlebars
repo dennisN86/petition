@@ -2,6 +2,30 @@
 
 {{#listOfParticipants}}
 
-    <p><a href="{{ url }}">{{ first_name }} {{ last_name }}</a>, {{ age }}, <a href="/participants/{{city}}">{{ city }}</a></p>
+<p>
+
+{{#if url}}
+
+    <a href="{{ url }}">{{ first_name }} {{ last_name }}</a>
+
+{{ else }}
+
+    {{ first_name }} {{ last_name }}
+
+{{/if }}
+
+{{#if age}}
+
+    || {{ age }}
+
+{{/if }}
+
+{{#if city}}
+
+    || <a href="/participants/{{ city }}">{{ city }}</a>
+
+{{/if }}
+
+</p>
 
 {{/listOfParticipants}}

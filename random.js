@@ -61,3 +61,19 @@ app.get("/thanks", checkForSig, (req, res, next));
 //
 
 // Ivanas encounter
+//
+// replaces the cookie session in the server.js
+
+var session = require('express-session');
+var Store = require('connect-redis')(session);
+
+app.use(session({
+    store: new Store({
+        ttl: 3600,
+        host: 'localhost',
+        port: 6379
+    }),
+    resave: false,
+    saveUninitialized: true,
+    secret: 'my super fun secret'
+}));

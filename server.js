@@ -31,13 +31,57 @@ app.set("view engine", "handlebars");
 
 app.use(csurf());
 
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken();
     next();
 });
 
-function checkForReg(req, res, next) {
-    !req.session.user.id ? res.redirect("/registration") : next();
+//
+app.use((req, res, next) => {
+    req.session.user ? (res.locals.logged = true) : (res.locals.logged = false);
+    next();
+});
+
+// function checkForReg(req, res, next) {
+//     !req.session.user ? res.redirect("/registration") : next();
+// }
+//
+// function checkForSig(req, res, next) {
+//     console.log("checking for signature");
+//     req.session.signatureId ? res.redirect("/thanks") : next();
+// }
+//
+function checkForLog(req, res, next) {
+    if (!req.session.user) {
+        res.redirect("/login");
+    } else {
+        next();
+    }
+}
+
+function checkForSig(req, res, next) {
+    console.log("function checkForSig triggered");
+    if (!req.session.user) {
+        res.redirect("/login");
+    } else {
+        db.signatureId(req.session.user.id).then(result => {
+            if (result) {
+                console.log("signed");
+                if (req.url === "/petition") {
+                    console.log("redirect");
+                    res.redirect("/thanks");
+                } else {
+                    next();
+                }
+            } else {
+                if (req.url !== "/petition") {
+                    res.redirect("/petition");
+                } else {
+                    next();
+                }
+            }
+        });
+    }
 }
 
 /////////////////////////////////////////
@@ -103,6 +147,7 @@ app.post("/login", (req, res) => {
                                     db.getUser(req.body.emailaddress).then(
                                         matchedUser => {
                                             req.session.user = matchedUser;
+                                            console.log(req.session);
                                             res.redirect("/petition");
                                         }
                                     );
@@ -138,7 +183,7 @@ app.post("/login", (req, res) => {
 /////////////////// profil ///////////////////
 //////////////////////////////////////////////
 
-app.get("/profile", (req, res) => {
+app.get("/profile", checkForLog, (req, res) => {
     res.render("profile");
 });
 
@@ -148,10 +193,17 @@ app.post("/profile", (req, res) => {
         req.body.city,
         req.body.url,
         req.session.user.id
-    ).then(results => {
-        console.log(results);
-        res.redirect("/petition");
-    });
+    )
+        .then(() => {
+            res.redirect("/petition");
+        })
+        .catch(err => {
+            console.log(err);
+            res.render("profile", {
+                errorFlag: true,
+                err: "Oops, something went wrong!"
+            });
+        });
 });
 
 ////////////////////////////////////////////
@@ -162,46 +214,53 @@ app.get("/petition", checkForSig, (req, res) => {
     res.render("petition");
 });
 
-function checkForSig(req, res, next) {
-    console.log("checking for signature");
-    req.session.signatureId ? res.redirect("/thanks") : next();
-}
+app.post("/petition", (req, res) => {
+    db.insertUser(req.session.user.id, req.body.signature)
+        .then(() => {
+            console.log("signed bloody petition");
+            res.redirect("/thanks");
+        })
+        .catch(err => {
+            console.log(err);
+            res.render("petition", {
+                errorFlag: true,
+                err: "Oops, something went wrong!"
+            });
+        });
+});
 
 ////////////////////////////////////////////
 /////////////// thanks /////////////////////
 ////////////////////////////////////////////
 
-app.get("/thanks", (req, res) => {
-    db.signatureId(req.session.signatureId).then(results => {
+app.get("/thanks", checkForSig, (req, res) => {
+    db.signatureId(req.session.user.id).then(results => {
         res.render("thanks", {
-            signature: results
+            signature: results.signature
         });
     });
 });
 
-app.post("/petition", (req, res) => {
-    db.insertUser(req.session.user.id, req.body.signature)
-        .then(signatureId => {
-            req.session.signatureId = signatureId;
-            res.redirect("/thanks");
+app.post("/thanks", (req, res) => {
+    db.removeSignature(req.session.user.id)
+        .then(() => {
+            console.log("removed");
+            res.redirect("/petition");
         })
         .catch(err => {
             console.log(err);
+            res.render("thanks", {
+                errorFlag: true,
+                err: "Oops, something went wrong!"
+            });
         });
-});
-
-app.post("/delete-signature", (req, res) => {
-    db.removeSignature(req.session.user.id).then(results => {
-        req.session.signatureId = null;
-        res.redirect("/petition");
-    });
 });
 
 //////////////////////////////////////////////////
 /////////////// participants /////////////////////
 //////////////////////////////////////////////////
 
-app.get("/participants", (req, res) => {
+app.get("/participants", checkForSig, (req, res) => {
     db.mergeTables().then(users => {
         res.render("participants", {
             listOfParticipants: users
@@ -209,7 +268,7 @@ app.get("/participants", (req, res) => {
     });
 });
 
-app.get("/participants/:city", (req, res) => {
+app.get("/participants/:city", checkForSig, (req, res) => {
     db.listCity(req.params.city.toUpperCase()).then(results => {
         res.render("city", {
             listOfParticipants: results,
@@ -222,10 +281,10 @@ app.get("/participants/:city", (req, res) => {
 /////////////// edit profile /////////////////////
 //////////////////////////////////////////////////
 
-app.get("/editProfile", (req, res) => {
-    db.getUserInfo(req.session.user.id).then(results => {
+app.get("/editProfile", checkForLog, (req, res) => {
+    db.getUserInfo(req.session.user.id).then(userData => {
         res.render("editProfile", {
-            userData: results
+            userData: userData
         });
     });
 });
@@ -256,6 +315,10 @@ app.post("/editProfile", (req, res) => {
             })
             .catch(err => {
                 console.log(err);
+                res.render("editProfile", {
+                    errorFlag: true,
+                    err: "Oops, something went wrong!"
+                });
             });
     } else {
         db.updateUsers(
@@ -269,9 +332,17 @@ app.post("/editProfile", (req, res) => {
                 req.body.age,
                 req.body.city,
                 req.body.url
-            ).then(() => {
-                res.redirect("/editProfile");
-            });
+            )
+                .then(() => {
+                    res.redirect("/editProfile");
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.render("editProfile", {
+                        errorFlag: true,
+                        err: "Oops, something went wrong!"
+                    });
+                });
         });
     }
 });
@@ -282,17 +353,9 @@ app.post("/editProfile", (req, res) => {
 
 app.get("/logout", (req, res) => {
     req.session = null;
-    res.redirect("/");
+    res.redirect("/registration");
 });
 
 app.listen(8080, () => {
     console.log("Listening on port 8080");
 });
-
-// populate edit profile page with user credentials, except password and homepage field
-// write to querries to update the user and the user_profiles table
-// the column your checking the ON CONFLICT (name) has to be the UNIQUE thingy
-//
-// when password is an empty sting -> skipping password update = no new hash
-// redirect user to updated information
-// add delete button to signature -> set the signature in the session to null
