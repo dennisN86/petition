@@ -355,6 +355,4 @@ app.get("/logout", (req, res) => {
     res.redirect("/registration");
 });
 
-app.listen(8080, () => {
-    console.log("Listening on port 8080");
-});
+app.listen(process.env.PORT || 8080);
