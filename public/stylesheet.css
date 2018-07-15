@@ -1,3 +1,244 @@
-/* canvas {
-    border: 1px red solid;
-} */
+* {
+    box-sizing: border-box;
+    /* margin: 0; */
+    font-family: "Open Sans";
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-image: url("beers-thankyou0.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+h1 {
+    font-weight: 100;
+    font-size: 40px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 5px 5px 10px black;
+}
+
+p {
+    font-weight: 100;
+    font-size: 20px;
+    color: white;
+    text-shadow: 5px 5px 10px black;
+    padding: 8px 15px;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+input,
+textarea {
+    height: 70px;
+    width: 250px;
+    margin-top: 30px;
+    border-radius: 10px;
+    border: 1px black;
+    font-weight: 100;
+    font-size: 20px;
+    padding: 5px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+button {
+    margin-top: 20px;
+    height: 60px;
+    width: 150px;
+    font-size: 20px;
+    color: black;
+    background-color: rgba(150, 162, 181);
+    opacity: 0.7;
+    font-weight: 100;
+    font-size: 24px;
+    border-radius: 17px;
+    letter-spacing: -0.005em;
+    border: none;
+}
+
+.nav {
+    /* border: 1px solid red; */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    height: 10vh;
+    width: 100vw;
+    font-weight: 100;
+    font-size: 24px;
+    opacity: 0.7;
+}
+
+.home {
+    display: flex;
+    height: 90vh;
+    width: 100vw;
+}
+
+.home-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 50%;
+    padding-top: 150px;
+    /* border: 1px solid green; */
+}
+
+.home-picture img {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: right;
+    opacity: 0.7;
+    border: none;
+    padding-top: 130px;
+    padding-left: 80px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    width: 100vw;
+    /* border: 1px solid green; */
+}
+
+.partial error {
+    height: 10vh;
+    width: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.petition {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* align-items: center; */
+    height: 90vh;
+    width: 100vw;
+    margin-top: 30px;
+    /* border: 1px solid purple; */
+}
+
+.petition-form {
+}
+
+canvas {
+    height: 102px;
+    width: 502px;
+    margin-top: 30px;
+    border-radius: 10px;
+    border: 1px black;
+    background-color: white;
+    opacity: 0.7;
+}
+
+#petition-submit {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 30%;
+    width: 100%;
+    visibility: visible;
+    /* border: 1px solid tomato; */
+}
+
+.petition-canvas {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 70%;
+    width: 100%;
+    /* border: 1px solid orange; */
+}
+
+#submit {
+    /* margin-top: 20px; */
+    height: 80px;
+    width: 200px;
+    font-size: 20px;
+    color: black;
+    background-color: rgba(150, 162, 181);
+    opacity: 0.7;
+    /* font-family: "Open Sans"; */
+    font-weight: 100;
+    font-size: 24px;
+    border-radius: 17px;
+    letter-spacing: -0.005em;
+    border: none;
+}
+
+.thanks {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    width: 100vw;
+    /* border: 1px solid green; */
+}
+
+#signature {
+    height: 70px;
+    width: 220px;
+    margin-top: 30px;
+    border-radius: 15px;
+    background-color: white;
+    /* border: 1px black; */
+}
+
+#thanks-form {
+}
+
+#participants {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+    width: 100vw;
+    margin-bottom: 50px;
+    /* border: 1px orange solid; */
+}
+
+.participants {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+    width: 100vw;
+    /* border: 1px solid green; */
+}
+
+.participants-city {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+    width: 100vw;
+    /* border: 1px solid green; */
+}
+
+@font-face {
+    /* font-family: "Beer"; */
+    /* src: url("./Irish-Beer.ttf"); */
+    font-family: "Open Sans", sans-serif;
+}

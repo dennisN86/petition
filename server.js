@@ -42,15 +42,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// function checkForReg(req, res, next) {
-//     !req.session.user ? res.redirect("/registration") : next();
-// }
-//
-// function checkForSig(req, res, next) {
-//     console.log("checking for signature");
-//     req.session.signatureId ? res.redirect("/thanks") : next();
-// }
-//
 function checkForLog(req, res, next) {
     if (!req.session.user) {
         res.redirect("/login");
@@ -118,11 +109,19 @@ app.post("/registration", (req, res) => {
                 req.body.lastname,
                 req.body.emailaddress,
                 resolve
-            ).then(newUser => {
-                req.session.user = newUser;
-                res.redirect("/profile");
-                console.log(newUser);
-            });
+            )
+                .then(newUser => {
+                    req.session.user = newUser;
+                    res.redirect("/profile");
+                    console.log(newUser);
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.render("registration", {
+                        errorFlag: true,
+                        err: "Oops, something went wrong!"
+                    });
+                });
         });
     }
 });

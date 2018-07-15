@@ -1,13 +1,13 @@
-<div class="view thanks">
+<div class="thanks">
     <h1>Thank you for signing the petition!</h1>
+
+    <img id="signature" src="{{ signature }}">
+
+    <form id="thanks-form" method="post">
+        <input name="_csrf" type="hidden" value="{{ csrfToken }}">
+        <button id="submit">Delete your signature!</button>
+    </form>
+
 </div>
 
-<img src="{{ signature }}">
-
-<!-- action="/thanks"> -->
-<form method="post">
-    <input name="_csrf" type="hidden" value="{{ csrfToken }}">
-    <button type="submit">Delete your signature!</button>
-</form>
-
-<a href="/participants">Take a look on who participated in this petition..</a>
+<a id="participants" href="/participants">Take a look on who participated in this petition..</a>

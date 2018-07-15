@@ -9,7 +9,7 @@ canvas.mousedown(function(e) {
     var mouseY = e.pageY - $(this).offset().top;
 
     paint = true;
-    addClick(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top);
+    addClick(mouseX, mouseY);
     redraw();
 });
 
@@ -25,7 +25,6 @@ canvas.mousemove(function(e) {
 });
 
 canvas.mouseup(function() {
-    // hiddenInput.val(canvas[0].toDataURL());
     paint = false;
     redraw();
 });
@@ -46,9 +45,9 @@ function addClick(x, y, dragging) {
 }
 
 function redraw() {
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle = "black";
     ctx.lineJoin = "round";
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
 
     for (var i = 0; i < clickX.length; i++) {
         ctx.beginPath();
